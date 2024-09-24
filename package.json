@@ -1,0 +1,21 @@
+{
+  "name": "arcane-empires",
+  "version": "1.0.0",
+  "description": "Fantasy massively multiplayer online role-playing game (MMORPG)",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3"
+  }
+
+}
