@@ -1,5 +1,5 @@
 # Stage 1: Build React App
-FROM node:18.16.0 AS build
+FROM node:20.17-bullseye AS build
 
 # Set working directory for the build stage
 WORKDIR /app
