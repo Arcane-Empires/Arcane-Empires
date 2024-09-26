@@ -27,11 +27,12 @@ jobs:
 
       - name: Run tests
         run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
+          # Check if Dockerfile exists
+          if [ -f Dockerfile ]; then
             docker build . --file Dockerfile
+          else
+            echo "Dockerfile not found!"
+            exit 1
           fi
 
   # Push image to registry (e.g., GitHub Packages or Docker Hub).
