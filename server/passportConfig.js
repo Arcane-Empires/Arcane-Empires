@@ -11,26 +11,21 @@ passport.use(new LocalStrategy({
   passwordField: 'password'
 }, async (email, password, done) => {
   try {
-    console.log("hit passconfig")
     // TODO - find user by email
     // const user = await User.findOne({ email });
     const user = { _id: '123', email: 'jonnysmith696910@gmail.com', password: 'password123' }
     if (!user) {
-      console.log("no user")
       return done(null, false, { message: 'Incorrect email.' });
     }
 
     // const isMatch = await bcrypt.compare(password, user.password);
     const isMatch = (user.password == password);
     if (!isMatch) {
-      console.log("no match")
       return done(null, false, { message: 'Incorrect password.' });
     }
 
     return done(null, user);
   } catch (error) {
-    console.log(error)
-    console.log("error")
     return done(error);
   }
 }));

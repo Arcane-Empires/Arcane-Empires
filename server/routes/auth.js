@@ -16,7 +16,6 @@ router.post(
         body('password').isLength({ min: 6 })
     ], 
     async (req, res) => {
-        console.log();
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -57,7 +56,7 @@ router.post(
           if (err) {
             res.send(err);
           }
-          
+
           const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
           return res.json({ token });
         });
