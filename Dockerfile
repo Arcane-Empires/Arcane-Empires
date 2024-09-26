@@ -19,7 +19,7 @@ COPY ./client /app/client
 RUN cd client && npm run build
 
 # Stage 2: Setup the backend
-FROM node:18.16.0 AS runtime
+FROM node:20.17-bullseye AS runtime
 
 # Set working directory for the runtime stage
 WORKDIR /app
