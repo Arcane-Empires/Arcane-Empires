@@ -10,29 +10,43 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Authenticate to GHCR
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # Try pulling from GHCR, fallback to docker.pkg.github.com if it fails
+      - name: Pull Docker image from GHCR or fallback to docker.pkg.github.com
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME:latest
+          FALLBACK_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest
+          
+          if docker pull $IMAGE_ID; then
+            echo "Pulled image from GHCR"
+          else
+            echo "Failed to pull from GHCR, falling back to docker.pkg.github.com"
+            docker pull $FALLBACK_IMAGE_ID
+          fi
+
+      # Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
+      # Set up Google Cloud SDK
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           install_components: 'beta'
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE_NAME:latest
-
+      # Deploy to Cloud Run using the pulled image
       - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE_NAME:latest
-          service: my-app
-          region: us-central1
-          allow-unauthenticated: true
+        run: |
+          gcloud run deploy my-app \
+          --image $IMAGE_ID \
+          --region us-central1 \
+          --platform managed \
+          --allow-unauthenticated
+
