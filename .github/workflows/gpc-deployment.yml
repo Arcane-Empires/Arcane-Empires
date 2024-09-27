@@ -10,24 +10,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v0
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          install_components: 'beta'
 
-      - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Pull Docker image from GitHub Container Registry
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME:latest
-          docker pull $IMAGE_ID
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE_NAME:latest
 
       - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy my-app \
-          --image ghcr.io/${{ github.repository }}/$IMAGE_NAME:latest \
-          --region us-central1 \
-          --platform managed \
-          --allow-unauthenticated
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/$IMAGE_NAME:latest
+          service: my-app
+          region: us-central1
+          allow-unauthenticated: true
