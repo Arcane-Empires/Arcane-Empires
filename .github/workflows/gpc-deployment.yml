@@ -19,18 +19,11 @@ jobs:
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # Try pulling from GHCR, fallback to docker.pkg.github.com if it fails
-      - name: Pull Docker image from GHCR or fallback to docker.pkg.github.com
+      # Pull Docker image from GHCR
+      - name: Pull Docker image from GHCR
         run: |
           IMAGE_ID=ghcr.io/arcane-empires/arcane-empires/arcaneempire:latest
-          FALLBACK_IMAGE_ID=docker.pkg.github.com/arcane-empires/arcane-empires/arcaneempire:latest
-          
-          if docker pull $IMAGE_ID; then
-            echo "Pulled image from GHCR"
-          else
-            echo "Failed to pull from GHCR, falling back to docker.pkg.github.com"
-            docker pull $FALLBACK_IMAGE_ID
-          fi
+          docker pull $IMAGE_ID
 
       # Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
@@ -49,8 +42,8 @@ jobs:
       # Deploy to Cloud Run using the pulled image
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy my-app \
-          --image $IMAGE_ID \
+          gcloud run deploy ArcaneEmpire \
+          --image ghcr.io/arcane-empires/arcane-empires/arcaneempire:latest \
           --region us-central1 \
           --platform managed \
           --allow-unauthenticated
