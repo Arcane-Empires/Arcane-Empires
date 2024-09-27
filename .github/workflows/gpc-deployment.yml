@@ -42,7 +42,7 @@ jobs:
       # Deploy to Cloud Run using the pulled image
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ArcaneEmpire \
+          gcloud run deploy arcaneempire \
           --image ghcr.io/arcane-empires/arcane-empires/arcaneempire:latest \
           --region us-central1 \
           --platform managed \
