@@ -17,7 +17,7 @@ jobs:
       # Try pulling from GHCR, fallback to docker.pkg.github.com if it fails
       - name: Pull Docker image from GHCR or fallback to docker.pkg.github.com
         run: |
-          IMAGE_ID= ghcr.io/arcane-empires/arcane-empires/arcaneempire:latest
+          IMAGE_ID=ghcr.io/arcane-empires/arcane-empires/arcaneempire:latest
           FALLBACK_IMAGE_ID=docker.pkg.github.com/arcane-empires/arcane-empires/arcaneempire:latest
           
           if docker pull $IMAGE_ID; then
