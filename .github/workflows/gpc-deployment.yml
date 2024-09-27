@@ -10,24 +10,43 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-
+      # Authenticate to GHCR
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Pull Docker image from GitHub Container Registry
+      # Try pulling from GHCR, fallback to docker.pkg.github.com if it fails
+      - name: Pull Docker image from GHCR or fallback to docker.pkg.github.com
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME:latest
-          docker pull $IMAGE_ID
+          FALLBACK_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME:latest
+          
+          if docker pull $IMAGE_ID; then
+            echo "Pulled image from GHCR"
+          else
+            echo "Failed to pull from GHCR, falling back to docker.pkg.github.com"
+            docker pull $FALLBACK_IMAGE_ID
+          fi
 
+      # Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'beta'
+
+      # Deploy to Cloud Run using the pulled image
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy my-app \
-          --image ghcr.io/${{ github.repository }}/$IMAGE_NAME:latest \
+          --image $IMAGE_ID \
           --region us-central1 \
           --platform managed \
           --allow-unauthenticated
+
