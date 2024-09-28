@@ -14,8 +14,8 @@ on:
   pull_request:
 
 env:
-  # Set your Docker image's name.
-  IMAGE_NAME: arcaneempire
+  FRONTEND_IMAGE_NAME: arcaneempire-frontend
+  BACKEND_IMAGE_NAME: arcaneempire-backend
 
 jobs:
   # Run tests.
@@ -25,19 +25,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run tests
+      - name: Run backend tests
         run: |
-          # Check if Dockerfile exists
-          if [ -f Dockerfile ]; then
-            docker build . --file Dockerfile
+          # Check if backend Dockerfile exists
+          if [ -f Dockerfile.backend ]; then
+            docker build . --file Dockerfile.backend
           else
-            echo "Dockerfile not found!"
+            echo "Dockerfile.backend not found!"
             exit 1
           fi
 
-  # Push image to registry (e.g., GitHub Packages or Docker Hub).
+      - name: Run frontend tests
+        run: |
+          # Check if frontend Dockerfile exists
+          if [ -f Dockerfile.frontend ]; then
+            docker build . --file Dockerfile.frontend
+          else
+            echo "Dockerfile.frontend not found!"
+            exit 1
+          fi
+
+  # Push images to registry
   push:
-    # Ensure test job passes before pushing image.
+    # Ensure test job passes before pushing images.
     needs: test
 
     runs-on: ubuntu-latest
@@ -46,25 +56,45 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      - name: Build backend image
+        run: docker build . --file Dockerfile.backend --tag $BACKEND_IMAGE_NAME
+
+      - name: Build frontend image
+        run: docker build . --file Dockerfile.frontend --tag $FRONTEND_IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Push image
+      - name: Push backend image
         run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          BACKEND_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE_NAME
           
           # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          BACKEND_IMAGE_ID=$(echo $BACKEND_IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
+          echo BACKEND_IMAGE_ID=$BACKEND_IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag $BACKEND_IMAGE_NAME $BACKEND_IMAGE_ID:$VERSION
+          docker push $BACKEND_IMAGE_ID:$VERSION
+
+      - name: Push frontend image
+        run: |
+          FRONTEND_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE_NAME
+          
+          # Change all uppercase to lowercase
+          FRONTEND_IMAGE_ID=$(echo $FRONTEND_IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo FRONTEND_IMAGE_ID=$FRONTEND_IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $FRONTEND_IMAGE_NAME $FRONTEND_IMAGE_ID:$VERSION
+          docker push $FRONTEND_IMAGE_ID:$VERSION
