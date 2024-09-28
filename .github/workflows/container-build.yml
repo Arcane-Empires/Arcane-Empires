@@ -28,10 +28,10 @@ jobs:
       - name: Run backend tests
         run: |
           # Check if backend Dockerfile exists
-          if [ -f Dockerfile.backend ]; then
-            docker build . --file Dockerfile.backend
+          if [ -f Dockerfile ]; then
+            docker build . --file Dockerfile
           else
-            echo "Dockerfile.backend not found!"
+            echo "Dockerfile not found!"
             exit 1
           fi
 
@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build backend image
-        run: docker build . --file Dockerfile.backend --tag $BACKEND_IMAGE_NAME
+        run: docker build . --file Dockerfile --tag $BACKEND_IMAGE_NAME
 
       - name: Build frontend image
         run: docker build . --file Dockerfile.frontend --tag $FRONTEND_IMAGE_NAME
