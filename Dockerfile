@@ -1,5 +1,5 @@
 # Stage 1: Setup the backend
-FROM node:20.17.0
+FROM node:20.17.0-bookworm
 
 # Set working directory for the runtime stage
 WORKDIR /app
