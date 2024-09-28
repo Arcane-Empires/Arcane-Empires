@@ -1,8 +1,8 @@
 import express from 'express';
-import authRoutes from './routes/auth.js'; // Adjust the path as necessary
-import protectedRoute from './routes/protectedRoute.js'; // Adjust the path as necessary
-import path from 'path';
 import cors from 'cors';
+import authRoutes from './routes/auth.js';
+import protectedRoute from './routes/protectedRoute.js';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -18,13 +18,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
-// Middleware to enable CORS
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  credentials: true,  // Allow cookies and other credentials
+};
 
-// Serve frontend from the same server
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.use(cors(corsOptions));
+
+app.options('*', cors());
 
 // Use the auth routes
 app.use('/api/auth', authRoutes);
@@ -32,8 +34,14 @@ app.use('/api/auth', authRoutes);
 // Use the protected route
 app.use('/api/user', protectedRoute);
 
+// Serve the frontend from the same server
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Health check endpoint
 app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK'); // Add send response
+  res.status(200).send('OK');
 });
 
 const port = process.env.PORT || 3001;
