@@ -1,6 +1,7 @@
 // client/src/components/Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
+const backendUrl = `${process.env.REACT_APP_BACKEND_URL}/api/auth`
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ const Register = () => {
         e.preventDefault();
         try {
             const res = await axios.post(
-                'api/auth/register', 
+                `${backendUrl}/register`, 
                 { 'email': email, 'password': password }
             );
 

@@ -1,6 +1,7 @@
 // client/src/components/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
+const backendUrl = `${process.env.REACT_APP_BACKEND_URL}/api/auth`
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'api/auth/login', 
+        `${backendUrl}/login`, 
         { 'email': email, 'password': password }
       );
       localStorage.setItem('token', res.data.token);

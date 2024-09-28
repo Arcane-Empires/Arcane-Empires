@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arcane-empires-backend
+    ports:
+      - "3001:3001"
+    networks:
+      - internal
+    environment:
+      - FRONTEND_URL=http://localhost:8080
+    expose:
+      - "3001"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: arcane-empires-frontend
+    ports:
+      - "8080:80"
+    networks:
+      - internal
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:3001
+
+networks:
+  internal:
+    driver: bridge

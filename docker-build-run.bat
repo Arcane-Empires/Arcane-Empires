@@ -1,4 +1,8 @@
-@echo
-docker build -t arcane-empires .
-docker run -p 3001:3001 arcane-empires
+@echo off
+REM Remove the existing containers
+docker-compose -f docker-compose.Development.yml down
+
+REM Build and run the services using docker-compose
+docker-compose -f docker-compose.Development.yml up --build -d
+
 pause
