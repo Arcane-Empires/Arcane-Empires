@@ -63,11 +63,11 @@ jobs:
         run: docker build . --file Dockerfile.frontend --tag $FRONTEND_IMAGE_NAME
 
       - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push backend image
         run: |
-          BACKEND_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$BACKEND_IMAGE_NAME
+          BACKEND_IMAGE_ID=ghcr.io/${{ github.repository }}/$BACKEND_IMAGE_NAME
           
           # Change all uppercase to lowercase
           BACKEND_IMAGE_ID=$(echo $BACKEND_IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -84,7 +84,7 @@ jobs:
 
       - name: Push frontend image
         run: |
-          FRONTEND_IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$FRONTEND_IMAGE_NAME
+          FRONTEND_IMAGE_ID=ghcr.io/${{ github.repository }}/$FRONTEND_IMAGE_NAME
           
           # Change all uppercase to lowercase
           FRONTEND_IMAGE_ID=$(echo $FRONTEND_IMAGE_ID | tr '[A-Z]' '[a-z]')
