@@ -17,6 +17,10 @@ app.use(cors(corsOptions));
 
 app.options('*', cors());
 
+// Home endpoint
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
 // Use the auth routes
 app.use('/api/auth', authRoutes);
 

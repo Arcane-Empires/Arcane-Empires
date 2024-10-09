@@ -24,6 +24,10 @@ const characterSchema = new mongoose.Schema({
         type: Number,
         default: 100,
     },
+    stamina: {
+        type: Number,
+        default: 100,
+    },
     mana: {
         type: Number,
         default: 50,
