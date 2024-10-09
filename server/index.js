@@ -21,6 +21,7 @@ app.options('*', cors());
 app.get('/', (req, res) => {
   res.status(200).send('change this message!!');
 });
+
 // Use the auth routes
 app.use('/api/auth', authRoutes);
 
