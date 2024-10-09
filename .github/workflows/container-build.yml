@@ -4,6 +4,7 @@ on:
   push:
     # Publish `main` as Docker `latest` image.
     branches:
+      - main
       - staging
 
     # Publish `v1.2.3` tags as releases.
@@ -76,7 +77,7 @@ jobs:
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "staging" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
           echo BACKEND_IMAGE_ID=$BACKEND_IMAGE_ID
           echo VERSION=$VERSION
           docker tag $BACKEND_IMAGE_NAME $BACKEND_IMAGE_ID:$VERSION
@@ -93,7 +94,7 @@ jobs:
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
-          [ "$VERSION" == "staging" ] && VERSION=latest
+          [ "$VERSION" == "main" ] && VERSION=latest
           echo FRONTEND_IMAGE_ID=$FRONTEND_IMAGE_ID
           echo VERSION=$VERSION
           docker tag $FRONTEND_IMAGE_NAME $FRONTEND_IMAGE_ID:$VERSION
