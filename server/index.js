@@ -19,7 +19,7 @@ app.options('*', cors());
 
 // Home endpoint
 app.get('/', (req, res) => {
-  res.status(200).send('OK');
+  res.status(200).send('change this message');
 });
 // Use the auth routes
 app.use('/api/auth', authRoutes);
