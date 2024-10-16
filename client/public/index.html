@@ -1,13 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar with Login & Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://i.pinimg.com/originals/2b/75/4a/2b754a1c7f3ca0951b748823b8ab3d78.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+        nav {
+            background-color: rgba(48, 48, 48, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        nav a:hover {
+            background-color: #ff0000;
+        }
+        nav a i {
+            font-size: 20px;
+        }
+        .navbar-section {
+            display: flex;
+            gap: 10px;
+        }
+        .news-link {
+            margin-left: auto;
+            padding: 15px 20px;
+        }
+        .news-link a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .news-link a:hover {
+            color: #ff0000;
+        }
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            width: 350px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            color: black;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #303030;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .login-container button:hover {
+            background-color: #ff0000;
+        }
+        .login-container .register-button {
+            background-color: #ddd;
+            color: #303030;
+        }
+        .login-container .register-button:hover {
+            background-color: #bbb;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .checkbox-container input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="navbar-section">
+        <a href="#"><i class="fas fa-home"></i> Home</a>
+        <a href="#" id="loginButton"><i class="fas fa-sign-in-alt"></i> Login</a>
+        <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+        <div class="news-link"><a href="news.html"><i class="fas fa-newspaper"></i> News</a></div>
+    </div>
+</nav>
+
+<div class="login-modal" id="loginModal">
+    <div class="login-container" id="loginContainer">
+        <h2 id="modalTitle">Login</h2>
+        <div id="loginForm">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button id="loginSubmit">Submit</button>
+            <p id="loginMessage"></p>
+        </div>
+        <div id="registerForm" style="display:none;">
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <input type="text" id="regUsername" placeholder="Username" required>
+            <input type="password" id="regPassword" placeholder="Password" required>
+            <input type="date" id="dob" required>
+            <div class="checkbox-container">
+                <input type="checkbox" id="agreeMarketing">
+                <label for="agreeMarketing">
+                can we send you marketing emails ^,^
+                </label>
+            </div>
+            <button id="registerSubmit">Register</button>
+            <p id="registerMessage"></p>
+        </div>
+        <button class="register-button" id="toggleForm">Register</button>
+    </div>
+</div>
+
+<script>
+    const loginButton = document.getElementById('loginButton');
+    const loginModal = document.getElementById('loginModal');
+    const toggleForm = document.getElementById('toggleForm');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const loginMessage = document.getElementById('loginMessage');
+    const registerMessage = document.getElementById('registerMessage');
+
+    loginButton.onclick = function() {
+        loginModal.style.display = 'flex';
+    }
+
+    toggleForm.onclick = function() {
+        if (loginForm.style.display === 'none') {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            modalTitle.innerText = 'Login';
+            toggleForm.innerText = 'Register';
+        } else {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            modalTitle.innerText = 'Register';
+            toggleForm.innerText = 'Login';
+        }
+    }
+
+    document.getElementById('loginSubmit').onclick = async function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, { email, password });
+            localStorage.setItem('token', res.data.token);
+            loginMessage.innerText = 'Login successful';
+            setTimeout(() => {
+                loginModal.style.display = 'none';
+            }, 1000);
+        } catch (error) {
+            loginMessage.innerText = error.response.data.error;
+        }
+    }
+
+    document.getElementById('registerSubmit').onclick = async function() {
+        const regEmail = document.getElementById('regEmail').value;
+        const regUsername = document.getElementById('regUsername').value;
+        const regPassword = document.getElementById('regPassword').value;
+        const dob = document.getElementById('dob').value;
+        const agreeMarketing = document.getElementById('agreeMarketing').checked;
+
+        try {
+            const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, {
+                email: regEmail,
+                username: regUsername,
+                password: regPassword,
+                dob: dob,
+                agreeMarketing: agreeMarketing,
+            });
+            registerMessage.innerText = res.data.message;
+            setTimeout(() => {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                modalTitle.innerText = 'Login';
+                toggleForm.innerText = 'Register';
+            }, 2000);
+        } catch (error) {
+            registerMessage.innerText = error.response.data.error;
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target === loginModal) {
+            loginModal.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
 </html>
